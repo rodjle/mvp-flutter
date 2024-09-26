@@ -1,0 +1,79 @@
+@startuml
+skinparam componentStyle rectangle
+
+' Pacote Model, contendo as entidades de dados
+package "Model" {
+  class Cidade {
+    +int id
+    +String uf
+    +String nome
+    +String regiao
+  }
+}
+
+' Pacote View, que contém a interface gráfica e os contratos para comunicação com o Presenter
+package "View" {
+  interface LoginViewContract {
+    +onLoginSuccess()
+    +onLoginError(String error)
+  }
+
+  interface CidadeViewContract {
+    +aoAdicionarCidade(Cidade cidade)
+  }
+
+  class LoginView {
+    +TextEditingController _usernameController
+    +TextEditingController _passwordController
+    +onLoginSuccess()
+    +onLoginError(String error)
+  }
+
+  class CidadeView {
+    +TextEditingController _idController
+    +TextEditingController _ufController
+    +TextEditingController _nameController
+    +TextEditingController _regionController
+    +aoAdicionarCidade(Cidade cidade)
+  }
+}
+
+' Pacote Presenter, responsável pela lógica do aplicativo
+package "Presenter" {
+  class LoginPresenter {
+    +LoginPresenter(LoginViewContract view)
+    +login(String username, String password)
+  }
+
+  class CidadePresenter {
+    +CidadePresenter(CidadeViewContract view)
+    +adicionarCidade(int id, String uf, String nome, String regiao)
+    +retornaCidades()
+  }
+}
+
+' Pacote principal da aplicação, contendo as rotas de navegação
+package "App" {
+  class MeuApp {
+    +initialRoute
+    +routes
+  }
+}
+
+' Relações entre os componentes seguindo o padrão MVP
+LoginPresenter --> LoginViewContract : "Notifica a View (via interface)"
+CidadePresenter --> CidadeViewContract : "Notifica a View (via interface)"
+
+LoginPresenter --> LoginView : "Controla a lógica (Presenter para View)"
+CidadePresenter --> CidadeView : "Controla a lógica (Presenter para View)"
+
+CidadePresenter --> Cidade : "Manipula dados (Presenter para Model)"
+CidadeView ..> Cidade : "Exibe dados (View para Model)"
+
+LoginViewContract <-- LoginView : "Implementa a interface"
+CidadeViewContract <-- CidadeView : "Implementa a interface"
+
+MeuApp ..> LoginView : "Navega para (View)"
+MeuApp ..> CidadeView : "Navega para (View)"
+
+@enduml
